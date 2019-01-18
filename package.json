@@ -1,0 +1,31 @@
+{
+  "name": "kintone-friends",
+  "version": "0.0.1",
+  "description": "Follow all peoples on Kintone",
+  "scripts": {
+    "start": "webpack --mode development -w --debug --devtool inline-source-map",
+    "build": "NODE_ENV=production webpack --mode production --progress --display-error-details",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ueokande/kintone-friends.git"
+  },
+  "keywords": [
+    "WebExtensions",
+    "kintone"
+  ],
+  "author": "Shin'ya UEOKA",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ueokande/kintone-friends/issues"
+  },
+  "homepage": "https://github.com/ueokande/kintone-friends#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-stage-2": "^6.24.1",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1"
+  }
+}
