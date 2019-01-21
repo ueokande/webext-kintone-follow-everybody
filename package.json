@@ -5,6 +5,7 @@
   "scripts": {
     "start": "webpack --mode development -w --debug --devtool inline-source-map",
     "build": "NODE_ENV=production webpack --mode production --progress --display-error-details",
+    "package": "npm run build && script/package.sh",
     "lint": "eslint --ext .js src",
     "test": "karma start"
   },

@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+  "name": "Kintone Friends",
+  "description": "Follow all peoples on Kintone",
+  "version": "0.1",
+  "applications": {
+    "gecko": {
+      "id": "kintone-friends@i-beam.org"
+    }
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "matches": [ "<all_urls>" ],
+      "js": [ "build/content.js" ],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "scripts": [
+      "build/background.js"
+    ]
+  },
+  "permissions": []
+}
