@@ -8,18 +8,30 @@
       "id": "kintone-friends@i-beam.org"
     }
   },
-  "content_scripts": [
-    {
-      "all_frames": true,
-      "matches": [ "<all_urls>" ],
-      "js": [ "build/content.js" ],
-      "run_at": "document_end"
-    }
-  ],
   "background": {
     "scripts": [
+      "node_modules/webextension-polyfill/dist/browser-polyfill.js",
       "build/background.js"
     ]
   },
-  "permissions": []
+  "content_scripts": [
+    {
+      "all_frames": false,
+      "matches": [
+        "*://*.cybozu.com/k/*",
+        "*://*.s.cybozu.com/k/*"
+      ],
+      "js": [
+        "node_modules/webextension-polyfill/dist/browser-polyfill.js",
+        "build/content.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
+  "web_accessible_resources": [
+    "build/page.js"
+  ],
+  "permissions": [
+    "tabs"
+  ]
 }

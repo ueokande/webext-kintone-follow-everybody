@@ -5,8 +5,9 @@ const dist = path.resolve(__dirname, 'build');
 
 config = {
   entry: {
-    content: path.join(src, 'content'),
     background: path.join(src, 'background'),
+    content: path.join(src, 'content'),
+    page: path.join(src, 'page'),
   },
   output: {
     path: dist,
