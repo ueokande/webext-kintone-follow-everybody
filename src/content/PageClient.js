@@ -1,31 +1,32 @@
 import messages from '../shared/messages';
+import * as uuid from 'uuid';
 
 export default class PageClient {
-  getToken() {
+  sendMessage(body) {
+    let id = uuid.v4();
+
     return new Promise((resolve, reject) => {
       let listener = (e) => {
         let msg;
         try {
           msg = JSON.parse(e.data)
         } catch (e) {
-          // ignore unexpected message
           return;
         }
 
-        switch (msg.type) {
-          case messages.RESPONSE_CSRF_TOKEN:
-            window.removeEventListener('message', listener);
-            resolve(msg.token);
+        if (msg.type !== messages.PAGE_MESSAGE_RESPONSE || msg.id !== id) {
+          return;
         }
+
+        window.removeEventListener('message', listener);
+        resolve(msg.body);
       };
       window.addEventListener('message', listener, false);
       window.postMessage(JSON.stringify({
-        type: messages.REQUEST_CSRF_TOKEN
+        type: messages.PAGE_MESSAGE_REQUEST,
+        id,
+        body,
       }), window.origin);
     });
-  }
-
-  getSession() {
-    throw new Error("TODO: implement");
   }
 }

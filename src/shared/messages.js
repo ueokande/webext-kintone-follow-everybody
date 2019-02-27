@@ -1,4 +1,7 @@
 export default {
-  REQUEST_CSRF_TOKEN: 'request.csrf.token',
-  RESPONSE_CSRF_TOKEN: 'response.csrf.token'
+  PAGE_MESSAGE_REQUEST: 'page.message.request',
+  PAGE_MESSAGE_RESPONSE: 'page.message.response',
+
+  FOLLOW_USERS: 'kintone.friends/follow.users',
+  GET_ALL_USERS: 'kintone.friends/get.all.users',
 }
