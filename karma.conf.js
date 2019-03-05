@@ -7,6 +7,7 @@ module.exports = function (config) {
     frameworks: ['mocha'],
     files: [
       'test/main.js',
+      'node_modules/webextension-polyfill/dist/browser-polyfill.js',
       'test/**/*.test.js',
     ],
 
@@ -34,6 +35,6 @@ module.exports = function (config) {
       noInfo: true
     },
 
-    reporters: ['mocha']
+    frameworks: ['mocha', 'sinon'],
   })
 }
