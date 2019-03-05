@@ -1,19 +1,14 @@
 import messages from '../shared/messages';
+import MessageListener from './MessageListener';
 
-window.addEventListener("message", (e) => {
-  let msg;
-  try {
-    msg = JSON.parse(e.data)
-  } catch (e) {
-    // ignore unexpected message
-    return;
-  }
+let listener = new MessageListener();
+listener.onMessage((msg) => {
+  switch(msg.type) {
+  case messages.GET_ALL_USERS:
+    return Promise.resolve('invoked GET_ALL_USERS')
 
-  switch (msg.type) {
-  case messages.REQUEST_CSRF_TOKEN:
-    e.source.postMessage(JSON.stringify({
-      type: messages.RESPONSE_CSRF_TOKEN,
-      token: window.kintone.getRequestToken(),
-    }), e.origin);
+  case messages.FOLLOW_USERS:
+    return Promise.resolve('invoked FOLLOW_USERS')
   }
-}, false);
+  return Promise.resolve(123);
+})

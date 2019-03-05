@@ -28,10 +28,13 @@
       "run_at": "document_end"
     }
   ],
+  "browser_action": {
+  },
   "web_accessible_resources": [
     "build/page.js"
   ],
   "permissions": [
-    "tabs"
+    "tabs",
+    "storage"
   ]
 }

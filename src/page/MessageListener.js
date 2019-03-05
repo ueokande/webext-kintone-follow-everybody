@@ -22,7 +22,7 @@ export default class MessageListener {
       return;
     }
 
-    let resp = this.listener(msg);
+    let resp = this.listener(msg.body);
     if (resp instanceof Promise) {
       resp.then((body) => {
         e.source.postMessage(JSON.stringify({
