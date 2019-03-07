@@ -5,49 +5,49 @@ describe("shared/versions/storage", () => {
     return browser.storage.local.clear();
   });
 
-  describe('#getLastUserId', () => {
+  describe('#getCheckpoint', () => {
     it('returns undefined at first', async() => {
       let sut = new CheckpointRepository();
-      expect(await sut.getLastUserId('example.cybozu.com')).to.be.undefined;
+      expect(await sut.getCheckpoint('example.cybozu.com')).to.be.undefined;
     })
 
     it('returns last users', async() => {
       await browser.storage.local.set({
         checkpoint: {
-          'example1.cybozu.com': 10,
-          'example2.cybozu.com': 20,
+          'example1.cybozu.com': { lastUserId: 10, updatedAt: new Date() },
+          'example2.cybozu.com': { lastUserId: 20, updatedAt: new Date() },
         },
       });
 
       let sut = new CheckpointRepository();
-      let uid = await sut.getLastUserId();
-      expect(await sut.getLastUserId('example1.cybozu.com')).to.equal(10);
-      expect(await sut.getLastUserId('example2.cybozu.com')).to.equal(20);
-      expect(await sut.getLastUserId('example3.cybozu.com')).to.be.undefined;
+      let uid = await sut.getCheckpoint();
+      expect((await sut.getCheckpoint('example1.cybozu.com')).lastUserId).to.equal(10);
+      expect((await sut.getCheckpoint('example2.cybozu.com')).lastUserId).to.equal(20);
+      expect(await sut.getCheckpoint('example3.cybozu.com')).to.be.undefined;
     });
   })
 
-  describe('#setLastUserId', async() => {
+  describe('#setCheckpoint', async() => {
     it('returns undefined at first', async() => {
       let sut = new CheckpointRepository();
-      await sut.setLastUserId('example.cybozu.com', 10);
-      expect(await sut.getLastUserId('example.cybozu.com')).to.equal(10);
+      await sut.setCheckpoint('example.cybozu.com', 10);
+      expect((await sut.getCheckpoint('example.cybozu.com')).lastUserId).to.equal(10);
     })
 
     it('returns undefined at first', async() => {
       await browser.storage.local.set({
         checkpoint: {
-          'example1.cybozu.com': 10,
-          'example2.cybozu.com': 20,
+          'example1.cybozu.com': { lastUserId: 10, updatedAt: new Date() },
+          'example2.cybozu.com': { lastUserId: 20, updatedAt: new Date() },
         },
       });
 
       let sut = new CheckpointRepository();
-      await sut.setLastUserId('example3.cybozu.com', 30);
+      await sut.setCheckpoint('example3.cybozu.com', 30);
 
-      expect(await sut.getLastUserId('example1.cybozu.com')).to.equal(10);
-      expect(await sut.getLastUserId('example2.cybozu.com')).to.equal(20);
-      expect(await sut.getLastUserId('example3.cybozu.com')).to.equal(30);
+      expect((await sut.getCheckpoint('example1.cybozu.com')).lastUserId).to.equal(10);
+      expect((await sut.getCheckpoint('example2.cybozu.com')).lastUserId).to.equal(20);
+      expect((await sut.getCheckpoint('example3.cybozu.com')).lastUserId).to.equal(30);
     })
   })
 });
