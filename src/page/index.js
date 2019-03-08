@@ -8,7 +8,7 @@ listener.onMessage((msg) => {
   switch(msg.type) {
   case messages.GET_ALL_USERS:
     return controller.get1000Users();
-  case messages.FOLLOW_USERS:
+  case messages.FOLLOW_USER:
     return controller.follow(msg.id);
   }
 })
