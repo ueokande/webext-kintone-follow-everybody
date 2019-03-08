@@ -3,6 +3,9 @@
   "name": "Kintone Friends",
   "description": "Follow all peoples on Kintone",
   "version": "0.1",
+  "icons": {
+    "128": "resources/icon_128x128.png"
+  },
   "applications": {
     "gecko": {
       "id": "kintone-friends@i-beam.org"
@@ -28,12 +31,11 @@
       "run_at": "document_end"
     }
   ],
-  "browser_action": {
-  },
   "web_accessible_resources": [
     "build/page.js"
   ],
   "permissions": [
+    "notifications",
     "tabs",
     "storage"
   ]

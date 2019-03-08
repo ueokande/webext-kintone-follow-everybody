@@ -5,10 +5,12 @@ import Controller from './Controller';
 let controller = new Controller();
 let listener = new MessageListener();
 listener.onMessage((msg) => {
-  switch(msg.type) {
+  switch (msg.type) {
   case messages.GET_ALL_USERS:
-    return controller.get1000Users();
+    return controller.getAllUsers();
+  case messages.GET_LOGIN_USER:
+    return controller.getLoginUser();
   case messages.FOLLOW_USER:
     return controller.follow(msg.id);
   }
-})
+});

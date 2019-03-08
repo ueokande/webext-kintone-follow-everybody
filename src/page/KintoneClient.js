@@ -1,21 +1,17 @@
 export default class KintoneClient {
-  constructor(token) {
-    this.token = token;
-  }
-
   get1000Users() {
-    return this.post( '/k/api/group/users.json', {
+    return this.post('/k/api/group/users.json', {
       'id': '7532782697181632513',
       'size': 1000,
       'offset': 0,
-    })
+    });
   }
 
   follow(uid) {
-    return this.post( '/k/api/people/user/subscribe.json', {
+    return this.post('/k/api/people/user/subscribe.json', {
       'userId': uid,
       'subscribe': true,
-    })
+    });
   }
 
   async post(url, body) {
@@ -32,7 +28,8 @@ export default class KintoneClient {
       }),
     });
     if (resp.status >= 400) {
-      throw new Error(resp.statusText);
+      let respBody = await resp.json();
+      throw new Error(`${resp.statusText}: ${respBody.message}`);
     }
     return resp.json();
   }

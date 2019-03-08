@@ -7,7 +7,13 @@ export default class ContentClient {
     });
   }
 
-  followUsers(id) {
+  getLoginUser(tabId) {
+    return browser.tabs.sendMessage(tabId, {
+      type: messages.GET_LOGIN_USER,
+    });
+  }
+
+  followUsers(tabId, id) {
     return browser.tabs.sendMessage(tabId, {
       type: messages.FOLLOW_USER,
       id,

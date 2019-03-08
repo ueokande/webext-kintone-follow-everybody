@@ -3,7 +3,8 @@ import NotificationPresenter from './NotificationPresenter';
 import TabPresenter from './TabPresenter';
 import ContentClient from './ContentClient';
 
-const UPDATE_INTERVAL = 600000;  // 10min.
+// 10min.
+const UPDATE_INTERVAL = 600000;
 
 export default class FollowUseCase {
   constructor({
@@ -11,7 +12,7 @@ export default class FollowUseCase {
     notificationPresenter = new NotificationPresenter(),
     tabPresenter = new TabPresenter(),
     contentClient = new ContentClient(),
-  }) {
+  } = {}) {
     this.checkpointRepository = checkpointRepository;
     this.notificationPresenter = notificationPresenter;
     this.tabPresenter = tabPresenter;
@@ -20,39 +21,64 @@ export default class FollowUseCase {
 
   async update(tab) {
     let fqdn = this.getFQDN(tab.url);
-    let lastUserId = 0;
     let checkpoint = await this.checkpointRepository.getCheckpoint(fqdn);
-    if (checkpoint) {
-      if (checkpoint && Date.now() - checkpoint.updatedAt < UPDATE_INTERVAL) {
-        return;
-      }
-      lastUserId = checkpoint.lastUserId
+    if (checkpoint && Date.now() - checkpoint.updatedAt < UPDATE_INTERVAL) {
+      return;
     }
 
     let users = await this.contentClient.getAllUsers(tab.id);
-    let index = users.findIndex(u => Number(u.id) > Number(lastUserId));
-    if (index < 0) {
+    let loginUser = await this.contentClient.getLoginUser(tab.id);
+
+    users = users.filter(u => u.id !== loginUser.id);
+    if (checkpoint) {
+      users = users.filter(u => Number(u.id) > Number(checkpoint.lastUserId));
+    }
+    if (users.length === 0) {
       return;
     }
-    users = users.slice(index);
+
     for (let u of users) {
       try {
-        await this.contentClient.followUsers(u.id);
+        await this.contentClient.followUsers(tab.id, u.id);
       } catch (e) {
-        console.error(`Failed to follow user u.id`, e);
+        console.error(`Failed to follow user ${u.id}`, e);
         return;
       }
     }
-    await this.checkpointRepository.setCheckpoint(fqdn, users[users.length - 1].id);
-    await this.notificationPresenter.notifyUpdated(fqdn, users.length);
+    let lastUserId = users[users.length - 1].id;
+    await this.checkpointRepository.setCheckpoint(fqdn, lastUserId);
+    if (checkpoint) {
+      await this.notificationPresenter.notifyFollowed(fqdn, users.length);
+    } else {
+      await this.notificationPresenter.notifySynced(fqdn);
+    }
+  }
+
+  async updateAll() {
+    let tabs = await this.tabPresenter.getKintoneTabs();
+    let finishedFqdns = [];
+
+    for (let tab of tabs) {
+      let fqdn = this.getFQDN(tab.url);
+      if (finishedFqdns.includes(fqdn)) {
+        continue;
+      }
+
+      finishedFqdns.push(fqdn);
+      try {
+        await this.update(tab);
+      } catch (e) {
+        console.error(`Failed to update following on ${tab.url}:`, e);
+      }
+    }
   }
 
   getFQDN(url) {
     let u = new URL(url);
-    let words = u.hostname.split(".")
-    if (words.length > 0 && words[1] == 's') {
+    let words = u.hostname.split('.');
+    if (words.length > 0 && words[1] === 's') {
       words.splice(1, 1);
-      return words.join(".")
+      return words.join('.');
     }
     return u.hostname;
   }

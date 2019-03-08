@@ -3,40 +3,45 @@ import messages from '../shared/messages';
 export default class MessageListener {
   constructor() {
     this.listener = () => {};
-    window.addEventListener("message", this.onWindowMessage.bind(this));
   }
 
   onMessage(listener) {
     this.listener = listener;
+    this.bound = this.handler.bind(this);
+    window.addEventListener('message', this.bound);
   }
 
-  onWindowMessage(e) {
-    let msg;
+  stop() {
+    window.removeEventListener('message', this.bound);
+  }
+
+  handler(e) {
+    let request = null;
     try {
-      msg = JSON.parse(e.data)
-    } catch (e) {
+      request = JSON.parse(e.data);
+    } catch (_) {
+      // ignore unexpected message
+      return;
+    }
+    if (request.type !== messages.MESSAGE_REQUEST) {
       return;
     }
 
-    if (msg.type !== messages.PAGE_MESSAGE_REQUEST) {
+    let ret = null;
+    try {
+      ret = this.listener(request.body);
+    } catch (err) {
+      e.source.postMessage(messages.createRejected(request.id, err.message));
       return;
     }
-
-    let resp = this.listener(msg.body);
-    if (resp instanceof Promise) {
-      resp.then((body) => {
-        e.source.postMessage(JSON.stringify({
-          type: messages.PAGE_MESSAGE_RESPONSE,
-          id: msg.id,
-          body,
-        }), e.origin);
-      });
+    if (!(ret instanceof Promise)) {
+      e.source.postMessage(messages.createResponse(request.id, undefined));
       return;
     }
-    e.source.postMessage(JSON.stringify({
-      type: messages.PAGE_MESSAGE_RESPONSE,
-      id: msg.id,
-      body: resp,
-    }));
+    ret.then((value) => {
+      e.source.postMessage(messages.createResponse(request.id, value));
+    }).catch((err) => {
+      e.source.postMessage(messages.createRejected(request.id, err.message));
+    });
   }
 }

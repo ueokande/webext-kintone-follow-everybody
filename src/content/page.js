@@ -1,5 +1,6 @@
-const scripts = browser.runtime.getManifest().web_accessible_resources.filter((name) => {
-  return /.js$/.test(name);
+const manifest = browser.runtime.getManifest();
+const scripts = manifest.web_accessible_resources.filter((name) => {
+  return (/.js$/).test(name);
 });
 
 const next = () => {
@@ -8,9 +9,9 @@ const next = () => {
     return;
   }
 
-  const s = document.createElement("script");
-  s.setAttribute("src", browser.extension.getURL(script));
-  s.addEventListener("load", next);
+  const s = document.createElement('script');
+  s.setAttribute('src', browser.extension.getURL(script));
+  s.addEventListener('load', next);
   document.documentElement.appendChild(s);
 };
 

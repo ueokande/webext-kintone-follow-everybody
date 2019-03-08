@@ -1,32 +1,37 @@
 import messages from '../shared/messages';
-import * as uuid from 'uuid';
+import uuidv4 from 'uuid/v4';
 
 export default class PageClient {
-  sendMessage(body) {
-    let id = uuid.v4();
-
+  sendMessage(message) {
     return new Promise((resolve, reject) => {
-      let listener = (e) => {
-        let msg;
+      let id = uuidv4();
+      let handler = (e) => {
+        if (e.source !== window) {
+          return;
+        }
+        let response = null;
         try {
-          msg = JSON.parse(e.data)
-        } catch (e) {
+          response = JSON.parse(e.data);
+        } catch (_) {
+          // ignore unexpected message
           return;
         }
-
-        if (msg.type !== messages.PAGE_MESSAGE_RESPONSE || msg.id !== id) {
+        if (response.type === messages.MESSAGE_REQUEST || response.id !== id) {
           return;
         }
-
-        window.removeEventListener('message', listener);
-        resolve(msg.body);
+        switch (response.type) {
+        case messages.MESSAGE_RESPONSE:
+          window.removeEventListener('message', handler);
+          resolve(response.body);
+          break;
+        case messages.MESSAGE_REJECTED:
+          window.removeEventListener('message', handler);
+          reject(new Error(response.message));
+          break;
+        }
       };
-      window.addEventListener('message', listener, false);
-      window.postMessage(JSON.stringify({
-        type: messages.PAGE_MESSAGE_REQUEST,
-        id,
-        body,
-      }), window.origin);
+      window.addEventListener('message', handler);
+      window.postMessage(messages.createRequest(id, message));
     });
   }
 }

@@ -2,11 +2,17 @@ import FollowUseCase from '../../src/background/FollowUseCase';
 
 class MockNotificationPresenter {
   constructor() {
-    this.notifications = [];
+    this.updated = [];
+    this.synced = [];
   }
 
-  notifyUpdated(fqdn, count) {
-    this.notifications.push({ fqdn, count })
+  notifyFollowed(fqdn, count) {
+    this.updated.push({ fqdn, count })
+    return Promise.resolve();
+  }
+
+  notifySynced(fqdn) {
+    this.synced.push({ fqdn })
     return Promise.resolve();
   }
 }
@@ -45,12 +51,16 @@ class MockTabPresenter {
 }
 
 class MockContentClient {
-  constructor(users = [
-    { id: "0", name: "alice" },
-    { id: "1", name: "bob" },
-    { id: "2", name: "carol" },
-    { id: "3", name: "dan" },
-  ], followings = []) {
+  constructor(
+    loginUser = { id: '0', name: 'alice' },
+    users = [
+      { id: '0', name: 'alice' },
+      { id: '1', name: 'bob' },
+      { id: '2', name: 'carol' },
+      { id: '3', name: 'dan' },
+    ], followings = []
+  ) {
+    this.loginUser = loginUser;
     this.users = users;
     this.followings = followings;
   }
@@ -59,7 +69,12 @@ class MockContentClient {
     return Promise.resolve(this.users);
   }
 
-  followUsers(uid) {
+  getLoginUser(tabId) {
+    return Promise.resolve(this.loginUser);
+  }
+
+
+  followUsers(tabId, uid) {
     this.followings.push(uid);
     return Promise.resolve();
   }
@@ -67,54 +82,53 @@ class MockContentClient {
 
 describe('FollowUseCase', () => {
   describe('#update', () => {
-    it('follows a user', async() => {
-      let checkpointRepository = new MockCheckpointRepository();;
-      let sut = new FollowUseCase({
-        checkpointRepository: checkpointRepository,
-        notificationPresenter: new MockNotificationPresenter(),
-        contentClient: new MockContentClient(),
-      });
+    it('follows all users at first', async() => {
+      let checkpointRepository = new MockCheckpointRepository();
+      let notificationPresenter = new MockNotificationPresenter();
+      let contentClient = new MockContentClient();
+      let sut = new FollowUseCase({ checkpointRepository, notificationPresenter, contentClient });
       await sut.update({ id: 0, url: 'https://example.cybozu.com' });
 
       let checkpoint = checkpointRepository.checkpoints['example.cybozu.com']
       expect(checkpoint.lastUserId).to.equal('3');
+      expect(contentClient.followings).to.deep.equal(['1', '2', '3']);
+      expect(notificationPresenter.synced).to.deep.equal([{ fqdn: 'example.cybozu.com' }])
+      expect(notificationPresenter.updated).to.be.empty;
     });
 
     it('does nothing if followed recently', async() => {
       let checkpointRepository = new MockCheckpointRepository(
         { 'example.cybozu.com': { lastUserId: '1', updatedAt: Date.now() } }
       );
+      let notificationPresenter = new MockNotificationPresenter();
       let contentClient = new MockContentClient();
       await checkpointRepository.setCheckpoint('example.cybozu.com', '1');
 
-      let sut = new FollowUseCase({
-        checkpointRepository: checkpointRepository,
-        notificationPresenter: new MockNotificationPresenter(),
-        contentClient: contentClient,
-      });
+      let sut = new FollowUseCase({ checkpointRepository, notificationPresenter, contentClient });
       await sut.update({ id: 0, url: 'https://example.cybozu.com' });
 
       let checkpoint = checkpointRepository.checkpoints['example.cybozu.com']
       expect(checkpoint.lastUserId).to.equal('1');
       expect(contentClient.followings).to.be.empty;
+      expect(notificationPresenter.synced).to.be.empty;
+      expect(notificationPresenter.updated).to.be.empty;
     })
 
     it('follow new users after last followed', async() => {
       let checkpointRepository = new MockCheckpointRepository(
         { 'example.cybozu.com': { lastUserId: '1', updatedAt: Date.now() - 1200000 } }
       );
+      let notificationPresenter = new MockNotificationPresenter();
       let contentClient = new MockContentClient();
 
-      let sut = new FollowUseCase({
-        checkpointRepository: checkpointRepository,
-        notificationPresenter: new MockNotificationPresenter(),
-        contentClient: contentClient,
-      });
+      let sut = new FollowUseCase({ checkpointRepository, notificationPresenter, contentClient });
       await sut.update({ id: 0, url: 'https://example.cybozu.com' });
 
       let checkpoint = checkpointRepository.checkpoints['example.cybozu.com']
       expect(checkpoint.lastUserId).to.equal('3');
       expect(contentClient.followings).to.deep.equal(['2', '3']);
+      expect(notificationPresenter.synced).to.be.empty;
+      expect(notificationPresenter.updated).to.deep.equal([{ fqdn: 'example.cybozu.com', count: 2 }])
     })
   })
 })
