@@ -50,7 +50,7 @@ class MockContentClient {
     { id: "1", name: "bob" },
     { id: "2", name: "carol" },
     { id: "3", name: "dan" },
-  ], followings = new Set()) {
+  ], followings = []) {
     this.users = users;
     this.followings = followings;
   }
@@ -60,7 +60,7 @@ class MockContentClient {
   }
 
   followUsers(uid) {
-    this.followings.add(uid);
+    this.followings.push(uid);
     return Promise.resolve();
   }
 }
