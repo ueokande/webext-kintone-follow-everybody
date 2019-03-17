@@ -14,3 +14,9 @@ browser.runtime.onMessage.addListener((msg) => {
     return pageClient.sendMessage(msg);
   }
 });
+
+window.addEventListener('load', () => {
+  browser.runtime.sendMessage({
+    type: messages.TAB_OPENED,
+  });
+});

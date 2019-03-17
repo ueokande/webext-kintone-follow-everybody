@@ -38,4 +38,6 @@ export default {
   GET_ALL_USERS: 'kintone.friends/get.all.users',
   GET_LOGIN_USER: 'kintone.friends/get.login.user',
   FOLLOW_USER: 'kintone.friends/follow.user',
+
+  TAB_OPENED: 'tab.opened',
 };

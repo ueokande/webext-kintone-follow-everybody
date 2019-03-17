@@ -15,7 +15,7 @@ export default class NotificationPresenter {
       type: 'basic',
       iconUrl: browser.extension.getURL('resources/icon_128x128.png'),
       title: fqdn,
-      message: `${count} 人をフォローしました`,
+      message: `${count}人をフォローしました`,
     });
   }
 }
