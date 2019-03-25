@@ -1,7 +1,7 @@
 {
-  "name": "kintone-friends",
+  "name": "webext-kintone-follow-everybody",
   "version": "0.0.1",
-  "description": "Follow all peoples on Kintone",
+  "description": "WebExtension to follow all users for Kintone",
   "scripts": {
     "start": "webpack --mode development -w --debug --devtool inline-source-map",
     "build": "NODE_ENV=production webpack --mode production --progress --display-error-details",
