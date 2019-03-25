@@ -22,7 +22,9 @@
       "all_frames": false,
       "matches": [
         "*://*.cybozu.com/k/*",
-        "*://*.s.cybozu.com/k/*"
+        "*://*.s.cybozu.com/k/*",
+        "*://*.cybozu-dev.com/k/*",
+        "*://*.s.cybozu-dev.com/k/*"
       ],
       "js": [
         "node_modules/webextension-polyfill/dist/browser-polyfill.js",
