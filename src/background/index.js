@@ -1,7 +1,7 @@
 import FollowUseCase from './FollowUseCase';
 
-// 10 minute
-const UPDATE_INTERVAL = 600000;
+// 20 minute
+const UPDATE_INTERVAL = 1200000;
 
 let usecase = new FollowUseCase();
 

@@ -3,8 +3,8 @@ import NotificationPresenter from './NotificationPresenter';
 import TabPresenter from './TabPresenter';
 import ContentClient from './ContentClient';
 
-// 10min.
-const UPDATE_INTERVAL = 600000;
+// 20min.
+const UPDATE_INTERVAL = 1200000;
 
 export default class FollowUseCase {
   constructor({
